@@ -125,13 +125,26 @@ async function run() {
             const result = await addUser.insertOne(newUser);
             res.send(result)
         })
+        app.get('/users', async (req, res) => {
+            const cursor = addUser.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
 
-        app.get('/jobs/:id', async (req, res) => {
+        app.delete('/users/:id', async (req, res) => {
             const id = req.params.id;
+            console.log(id)
             const query = { _id: new ObjectId(id) };
-            const result = await addedJob.findOne(query);
+            const result = await addUser.deleteOne(query);
             res.send(result)
         })
+
+        // app.get('/jobs/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const query = { _id: new ObjectId(id) };
+        //     const result = await addedJob.findOne(query);
+        //     res.send(result)
+        // })
 
         // up to date jobs 
 
