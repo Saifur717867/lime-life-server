@@ -54,8 +54,11 @@ async function run() {
 
         // const addedJob = client.db('jobDb').collection('job');
         // const orderBid = client.db('jobDb').collection('bid');
+        const addAdmin = client.db('adminDb').collection('admin');
         const addUser = client.db('usersDb').collection('user');
         const addTrainer = client.db('trainersDb').collection('trainer');
+        const addForum = client.db('forumDb').collection('forum');
+        const addClass = client.db('classDb').collection('class');
 
         // auth related api jwt 
         // app.post('/jwt', async (req, res) => {
@@ -146,7 +149,21 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
+        // Blog section
+        app.post('/forums', async (req, res) => {
+            const newBlog =req.body;
+            console.log(newBlog)
+            const result = await addForum.insertOne(newBlog);
+            res.send(result)
+        })
 
+        // Class Section
+        app.post('/classes', async (req, res) => {
+            const newClass =req.body;
+            console.log(newClass)
+            const result = await addClass.insertOne(newClass);
+            res.send(result)
+        })
         // app.get('/jobs/:id', async (req, res) => {
         //     const id = req.params.id;
         //     const query = { _id: new ObjectId(id) };
