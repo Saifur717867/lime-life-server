@@ -114,11 +114,6 @@ async function run() {
         //     res.send(result);
         // })
 
-        // app.get('/jobs', async (req, res) => {
-        //     const cursor = addedJob.find();
-        //     const result = await cursor.toArray();
-        //     res.send(result);
-        // })
 
         app.post('/users', async (req, res) => {
             const newUser =req.body;
@@ -201,13 +196,6 @@ async function run() {
         //     }
         //     const cursor = orderBid.find(query);
         //     const result = await cursor.toArray();
-        //     res.send(result);
-        // })
-
-        // app.get('/bids', async (req, res) => {
-        //     const bidItems = req.body;
-        //     console.log(bidItems)
-        //     const result = await orderBid.find().toArray();
         //     res.send(result);
         // })
 
