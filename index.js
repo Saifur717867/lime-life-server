@@ -55,6 +55,7 @@ async function run() {
         // const addedJob = client.db('jobDb').collection('job');
         // const orderBid = client.db('jobDb').collection('bid');
         const addUser = client.db('usersDb').collection('user');
+        const addTrainer = client.db('trainersDb').collection('trainer');
 
         // auth related api jwt 
         // app.post('/jwt', async (req, res) => {
@@ -137,6 +138,18 @@ async function run() {
             const query = { _id: new ObjectId(id) };
             const result = await addUser.deleteOne(query);
             res.send(result)
+        })
+        // Trainers 
+        app.post('/trainers', async (req, res) => {
+            const newTrainer =req.body;
+            console.log(newTrainer)
+            const result = await addTrainer.insertOne(newTrainer);
+            res.send(result)
+        })
+        app.get('/trainers', async (req, res) => {
+            const cursor = addTrainer.find();
+            const result = await cursor.toArray();
+            res.send(result);
         })
 
         // app.get('/jobs/:id', async (req, res) => {
