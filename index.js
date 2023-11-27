@@ -191,13 +191,6 @@ async function run() {
         //     res.send(result)
         // })
 
-        // order bid section 
-        // app.post('/bids', async (req, res) => {
-        //     const bidJob = req.body;
-        //     console.log(bidJob)
-        //     const result = await orderBid.insertOne(bidJob);
-        //     res.send(result)
-        // })
 
         // app.get('/bids', async (req, res) => {
         //     console.log(req.query.email)
