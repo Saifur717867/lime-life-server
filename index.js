@@ -156,6 +156,11 @@ async function run() {
             const result = await addForum.insertOne(newBlog);
             res.send(result)
         })
+        app.get('/forums', async (req, res) => {
+            const cursor = addForum.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
 
         // Class Section
         app.post('/classes', async (req, res) => {
@@ -163,6 +168,11 @@ async function run() {
             console.log(newClass)
             const result = await addClass.insertOne(newClass);
             res.send(result)
+        })
+        app.get('/classes', async (req, res) => {
+            const cursor = addClass.find();
+            const result = await cursor.toArray();
+            res.send(result);
         })
         // app.get('/jobs/:id', async (req, res) => {
         //     const id = req.params.id;
