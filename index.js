@@ -9,7 +9,7 @@ const port = process.env.PORT || 5000;
 
 // middleware 
 app.use(cors({
-    origin: ['https://mellow-blancmange-fb2c08.netlify.app'],
+    origin: ['http://localhost:5173'],
     credentials: true
 }));
 app.use(express.json());
@@ -155,6 +155,19 @@ async function run() {
             const result = await addTrainer.findOne(query);
             res.send(result)
         })
+        app.patch('/trainers/:id', async (req, res) => {
+                const id = req.params.id;
+                const query = { _id: new ObjectId(id) };
+                const updateTrainer = req.body;
+                console.log(updateTrainer);
+                const updateDoc = {
+                    $set: {
+                        status: updateTrainer.status
+                    },
+                };
+                const result = await addTrainer.updateOne(query, updateDoc);
+                res.send(result)
+            })
         // Blog section
         app.post('/forums', async (req, res) => {
             const newBlog =req.body;
@@ -220,18 +233,7 @@ async function run() {
         //     const result = await addedJob.updateOne(filter, job, options);
         //     res.send(result)
         // })
-
-        // delete crud operation 
-
-        // app.delete('/jobs/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     console.log(id)
-        //     const query = { _id: new ObjectId(id) };
-        //     const result = await addedJob.deleteOne(query);
-        //     res.send(result)
-        // })
-
-
+        
         // app.get('/bids', async (req, res) => {
         //     console.log(req.query.email)
         //     console.log('got token from client site', req.cookies.token)
