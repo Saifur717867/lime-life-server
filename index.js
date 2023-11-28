@@ -149,6 +149,12 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
+        app.get('/trainers/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await addTrainer.findOne(query);
+            res.send(result)
+        })
         // Blog section
         app.post('/forums', async (req, res) => {
             const newBlog =req.body;
@@ -160,6 +166,12 @@ async function run() {
             const cursor = addForum.find();
             const result = await cursor.toArray();
             res.send(result);
+        })
+        app.get('/forums/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await addForum.findOne(query);
+            res.send(result)
         })
 
         // Class Section
@@ -173,6 +185,12 @@ async function run() {
             const cursor = addClass.find();
             const result = await cursor.toArray();
             res.send(result);
+        })
+        app.get('/classes/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await addClass.findOne(query);
+            res.send(result)
         })
         // app.get('/jobs/:id', async (req, res) => {
         //     const id = req.params.id;
