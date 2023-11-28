@@ -52,8 +52,6 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7) await
         client.connect();
 
-        // const addedJob = client.db('jobDb').collection('job');
-        // const orderBid = client.db('jobDb').collection('bid');
         const addAdmin = client.db('adminDb').collection('admin');
         const addUser = client.db('usersDb').collection('user');
         const addTrainer = client.db('trainersDb').collection('trainer');
@@ -73,6 +71,40 @@ async function run() {
         //         })
         //         .send({ success: true })
         // })
+        // jwt related api
+        app.post('/jwt', async (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+            res.send({ token });
+        })
+
+        // middlewares 
+        const verifyToken = (req, res, next) => {
+            // console.log('inside verify token', req.headers.authorization);
+            if (!req.headers.authorization) {
+                return res.status(401).send({ message: 'unauthorized access' });
+            }
+            const token = req.headers.authorization.split(' ')[1];
+            jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+                if (err) {
+                    return res.status(401).send({ message: 'unauthorized access' })
+                }
+                req.decoded = decoded;
+                next();
+            })
+        }
+
+        // use verify admin after verifyToken
+        const verifyAdmin = async (req, res, next) => {
+            const email = req.decoded.email;
+            const query = { email: email };
+            const user = await addUser.findOne(query);
+            const isAdmin = user?.role === 'admin';
+            if (!isAdmin) {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+            next();
+        }
 
         // secure: process.env.NODE_ENV === 'production', 
         // sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
@@ -116,30 +148,98 @@ async function run() {
         //     const result = await cursor.toArray();
         //     res.send(result);
         // })
+        // users related api
+    // app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
+    //     const result = await addUser.find().toArray();
+    //     res.send(result);
+    //   });
+  
+      app.get('/users/admin/:email', verifyToken, async (req, res) => {
+        const email = req.params.email;
+  
+        if (email !== req.decoded.email) {
+          return res.status(403).send({ message: 'forbidden access' })
+        }
+  
+        const query = { email: email };
+        const user = await addUser.findOne(query);
+        let admin = false;
+        if (user) {
+          admin = user?.role === 'admin';
+        }
+        res.send({ admin });
+      })
+  
+      app.post('/users', async (req, res) => {
+        const user = req.body;
+        // insert email if user doesnt exists: 
+        // you can do this many ways (1. email unique, 2. upsert 3. simple checking)
+        const query = { email: user.email }
+        const existingUser = await addUser.findOne(query);
+        if (existingUser) {
+          return res.send({ message: 'user already exists', insertedId: null })
+        }
+        const result = await addUser.insertOne(user);
+        res.send(result);
+      });
+  
+      app.patch('/users/admin/:id', verifyToken, verifyAdmin, async (req, res) => {
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        const updatedDoc = {
+          $set: {
+            role: 'admin'
+          }
+        }
+        const result = await addUser.updateOne(filter, updatedDoc);
+        res.send(result);
+      })
+  
+      app.delete('/users/:id', verifyToken, verifyAdmin, async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) }
+        const result = await addUser.deleteOne(query);
+        res.send(result);
+      })
 
-
-        app.post('/users', async (req, res) => {
-            const newUser =req.body;
-            console.log(newUser)
-            const result = await addUser.insertOne(newUser);
-            res.send(result)
-        })
+    //   amer 
+    app.get('/trainers/trainer/:email', verifyToken, async (req, res) => {
+        const email = req.params.email;
+  
+        if (email !== req.decoded.email) {
+          return res.status(403).send({ message: 'forbidden access' })
+        }
+  
+        const query = { email: email };
+        const user = await addTrainer.findOne(query);
+        let trainer = false;
+        if (user) {
+            trainer = user?.status === 'confirm';
+        }
+        res.send({ trainer });
+      })
+        // app.post('/users', async (req, res) => {
+        //     const newUser = req.body;
+        //     console.log(newUser)
+        //     const result = await addUser.insertOne(newUser);
+        //     res.send(result)
+        // })
         app.get('/users', async (req, res) => {
             const cursor = addUser.find();
             const result = await cursor.toArray();
             res.send(result);
         })
 
-        app.delete('/users/:id', async (req, res) => {
-            const id = req.params.id;
-            console.log(id)
-            const query = { _id: new ObjectId(id) };
-            const result = await addUser.deleteOne(query);
-            res.send(result)
-        })
+        // app.delete('/users/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     console.log(id)
+        //     const query = { _id: new ObjectId(id) };
+        //     const result = await addUser.deleteOne(query);
+        //     res.send(result)
+        // })
         // Trainers 
         app.post('/trainers', async (req, res) => {
-            const newTrainer =req.body;
+            const newTrainer = req.body;
             console.log(newTrainer)
             const result = await addTrainer.insertOne(newTrainer);
             res.send(result)
@@ -156,34 +256,34 @@ async function run() {
             res.send(result)
         })
         app.patch('/trainers/:id', async (req, res) => {
-                const id = req.params.id;
-                const query = { _id: new ObjectId(id) };
-                const updateTrainer = req.body;
-                console.log(updateTrainer);
-                const updateDoc = {
-                    $set: {
-                        status: updateTrainer.status
-                    },
-                };
-                const result = await addTrainer.updateOne(query, updateDoc);
-                res.send(result)
-            })
-            app.patch('/trainers/:id', async (req, res) => {
-                    const id = req.params.id;
-                    const query = { _id: new ObjectId(id) };
-                    const updateReject = req.body;
-                    console.log(updateReject);
-                    const updateDoc = {
-                        $set: {
-                            status: updateReject.reject
-                        },
-                    };
-                    const result = await addTrainer.updateOne(query, updateDoc);
-                    res.send(result)
-                })
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const updateTrainer = req.body;
+            console.log(updateTrainer);
+            const updateDoc = {
+                $set: {
+                    status: updateTrainer.status
+                },
+            };
+            const result = await addTrainer.updateOne(query, updateDoc);
+            res.send(result)
+        })
+        app.patch('/trainers/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const updateReject = req.body;
+            console.log(updateReject);
+            const updateDoc = {
+                $set: {
+                    status: updateReject.reject
+                },
+            };
+            const result = await addTrainer.updateOne(query, updateDoc);
+            res.send(result)
+        })
         // Blog section
         app.post('/forums', async (req, res) => {
-            const newBlog =req.body;
+            const newBlog = req.body;
             console.log(newBlog)
             const result = await addForum.insertOne(newBlog);
             res.send(result)
@@ -202,7 +302,7 @@ async function run() {
 
         // Class Section
         app.post('/classes', async (req, res) => {
-            const newClass =req.body;
+            const newClass = req.body;
             console.log(newClass)
             const result = await addClass.insertOne(newClass);
             res.send(result)
@@ -240,7 +340,7 @@ async function run() {
         //     const result = await addedJob.updateOne(filter, job, options);
         //     res.send(result)
         // })
-        
+
         // app.get('/bids', async (req, res) => {
         //     console.log(req.query.email)
         //     console.log('got token from client site', req.cookies.token)
