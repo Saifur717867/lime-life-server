@@ -168,6 +168,19 @@ async function run() {
                 const result = await addTrainer.updateOne(query, updateDoc);
                 res.send(result)
             })
+            app.patch('/trainers/:id', async (req, res) => {
+                    const id = req.params.id;
+                    const query = { _id: new ObjectId(id) };
+                    const updateReject = req.body;
+                    console.log(updateReject);
+                    const updateDoc = {
+                        $set: {
+                            status: updateReject.reject
+                        },
+                    };
+                    const result = await addTrainer.updateOne(query, updateDoc);
+                    res.send(result)
+                })
         // Blog section
         app.post('/forums', async (req, res) => {
             const newBlog =req.body;
@@ -205,12 +218,6 @@ async function run() {
             const result = await addClass.findOne(query);
             res.send(result)
         })
-        // app.get('/jobs/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const query = { _id: new ObjectId(id) };
-        //     const result = await addedJob.findOne(query);
-        //     res.send(result)
-        // })
 
         // up to date jobs 
 
@@ -246,41 +253,6 @@ async function run() {
         //     res.send(result);
         // })
 
-        // app.get('/bids/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const query = { _id: new ObjectId(id) };
-        //     const result = await orderBid.findOne(query);
-        //     res.send(result)
-        // })
-
-        // app.patch('/bids/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const query = { _id: new ObjectId(id) };
-        //     const updateBid = req.body;
-        //     console.log(updateBid);
-        //     const updateDoc = {
-        //         $set: {
-        //             status: updateBid.status
-        //         },
-        //     };
-        //     const result = await orderBid.updateOne(query, updateDoc);
-        //     res.send(result)
-        // })
-
-        // app.patch('/bids/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const query = { _id: new ObjectId(id) };
-        //     const updateBidReject = req.body;
-        //     console.log(updateBid);
-        //     const updateDoc = {
-        //         $set: {
-        //             status: updateBidReject.reject
-        //         },
-        //     };
-        //     const result = await orderBid.updateOne(query, updateDoc);
-        //     res.send(result)
-        // })
-
         // app.patch('/bids/:id', async (req, res) => {
         //     const id = req.params.id;
         //     const query = { _id: new ObjectId(id) };
@@ -294,16 +266,6 @@ async function run() {
         //     const result = await orderBid.updateOne(query, updateDoc);
         //     res.send(result)
         // })
-
-        // app.delete('/bids/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     console.log(id)
-        //     const query = { _id: new ObjectId(id) };
-        //     const result = await orderBid.deleteOne(query);
-        //     res.send(result)
-        // })
-
-
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
