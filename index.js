@@ -9,7 +9,7 @@ const port = process.env.PORT || 5000;
 
 // middleware 
 app.use(cors({
-    origin: ['https://mellow-blancmange-fb2c08.netlify.app'],
+    origin: ['http://localhost:5174'],
     credentials: true
 }));
 app.use(express.json());
