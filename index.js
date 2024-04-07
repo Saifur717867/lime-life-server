@@ -9,7 +9,7 @@ const port = process.env.PORT || 5000;
 
 // middleware 
 app.use(cors({
-    origin: ['http://localhost:5174'],
+    origin: ['https://harmonious-snickerdoodle-cc7afa.netlify.app'],
     credentials: true
 }));
 app.use(express.json());
